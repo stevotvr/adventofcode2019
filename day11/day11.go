@@ -9,11 +9,15 @@ import (
 	"strings"
 )
 
+type Position struct {
+	x int
+	y int
+}
+
 type Robot struct {
-	x    int
-	y    int
+	pos  Position
 	dir  int
-	grid map[string]int
+	grid map[Position]int
 }
 
 func (r *Robot) TurnLeft() {
@@ -27,22 +31,22 @@ func (r *Robot) TurnRight() {
 func (r *Robot) Move() {
 	switch r.dir {
 	case 0:
-		r.y--
+		r.pos.y--
 	case 1:
-		r.x++
+		r.pos.x++
 	case 2:
-		r.y++
+		r.pos.y++
 	case 3:
-		r.x--
+		r.pos.x--
 	}
 }
 
 func (r *Robot) Paint(color int) {
-	r.grid[fmt.Sprintf("%d,%d", r.x, r.y)] = color
+	r.grid[r.pos] = color
 }
 
 func (r *Robot) GetColor() int {
-	return r.grid[fmt.Sprintf("%d,%d", r.x, r.y)]
+	return r.grid[r.pos]
 }
 
 func (r *Robot) Run(c Computer) {
@@ -186,7 +190,7 @@ func (c *Computer) run() {
 }
 
 func createRobot() Robot {
-	return Robot{grid: make(map[string]int)}
+	return Robot{grid: make(map[Position]int)}
 }
 
 func createComputer() Computer {
@@ -214,24 +218,22 @@ func part1() {
 
 func part2() {
 	r := createRobot()
-	r.grid["0,0"] = 1
+	r.grid[r.pos] = 1
 	c := createComputer()
 
 	r.Run(c)
 
 	minX, minY, maxX, maxY := math.MaxFloat64, math.MaxFloat64, -math.MaxFloat64, -math.MaxFloat64
 	for k := range r.grid {
-		x, y := 0, 0
-		fmt.Sscanf(k, "%d,%d", &x, &y)
-		minX = math.Min(minX, float64(x))
-		minY = math.Min(minY, float64(y))
-		maxX = math.Max(maxX, float64(x))
-		maxY = math.Max(maxY, float64(y))
+		minX = math.Min(minX, float64(k.x))
+		minY = math.Min(minY, float64(k.y))
+		maxX = math.Max(maxX, float64(k.x))
+		maxY = math.Max(maxY, float64(k.y))
 	}
 
 	for y := int(minY); y <= int(maxY); y++ {
 		for x := int(minX); x <= int(maxX); x++ {
-			c, ok := r.grid[fmt.Sprintf("%d,%d", x, y)]
+			c, ok := r.grid[Position{x, y}]
 			if ok && c == 1 {
 				fmt.Print("#")
 			} else {
