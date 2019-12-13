@@ -108,7 +108,7 @@ func part1() {
 func part2() {
 	moons := getMoons()
 
-	counts, found := make([]int, 3), 0
+	period, found := Vector3d{}, 0
 	for i := 1; found < 3; i++ {
 		applyGravity(moons)
 
@@ -116,7 +116,7 @@ func part2() {
 			moons[m].Move()
 		}
 
-		if counts[0] == 0 {
+		if period.x == 0 {
 			inv := false
 			for m := range moons {
 				if moons[m].vel.x != 0 {
@@ -126,12 +126,12 @@ func part2() {
 			}
 
 			if !inv {
-				counts[0] = i * 2
+				period.x = i * 2
 				found++
 			}
 		}
 
-		if counts[1] == 0 {
+		if period.y == 0 {
 			inv := false
 			for m := range moons {
 				if moons[m].vel.y != 0 {
@@ -141,12 +141,12 @@ func part2() {
 			}
 
 			if !inv {
-				counts[1] = i * 2
+				period.y = i * 2
 				found++
 			}
 		}
 
-		if counts[2] == 0 {
+		if period.z == 0 {
 			inv := false
 			for m := range moons {
 				if moons[m].vel.z != 0 {
@@ -156,13 +156,13 @@ func part2() {
 			}
 
 			if !inv {
-				counts[2] = i * 2
+				period.z = i * 2
 				found++
 			}
 		}
 	}
 
-	lcm := Lcm(Lcm(counts[0], counts[1]), counts[2])
+	lcm := Lcm(Lcm(period.x, period.y), period.z)
 
 	fmt.Println(lcm)
 }
