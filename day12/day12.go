@@ -101,7 +101,6 @@ func part1() {
 		total += moons[m].Energy()
 	}
 
-	fmt.Println(moons)
 	fmt.Println(total)
 }
 
