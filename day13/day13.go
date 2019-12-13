@@ -8,11 +8,6 @@ import (
 	"strings"
 )
 
-type Vector2d struct {
-	x int
-	y int
-}
-
 type Computer struct {
 	program  []int
 	position int
