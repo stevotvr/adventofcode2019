@@ -193,7 +193,6 @@ func part2() {
 			} else if value == 4 {
 				ball = x
 			}
-		default:
 		}
 	}
 }
