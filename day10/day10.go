@@ -7,14 +7,14 @@ import (
 	"sort"
 )
 
-type Asteroid struct {
+type asteroid struct {
 	x int
 	y int
 }
 
-func getGrid() []Asteroid {
+func getGrid() []asteroid {
 	input, _ := os.Open("input.txt")
-	grid := make([]Asteroid, 0)
+	grid := make([]asteroid, 0)
 	line, y := "", 0
 	for {
 		_, err := fmt.Fscanln(input, &line)
@@ -24,7 +24,7 @@ func getGrid() []Asteroid {
 
 		for x := range line {
 			if line[x] == '#' {
-				grid = append(grid, Asteroid{x, y})
+				grid = append(grid, asteroid{x, y})
 			}
 		}
 
@@ -34,7 +34,7 @@ func getGrid() []Asteroid {
 	return grid
 }
 
-func los(grid []Asteroid, a1, a2 Asteroid) bool {
+func los(grid []asteroid, a1, a2 asteroid) bool {
 	dist := int((math.Sqrt(math.Pow(float64(a2.x-a1.x), 2) + math.Pow(float64(a2.y-a1.y), 2))) * 1000000000)
 	for _, a3 := range grid {
 		if a3 == a1 || a3 == a2 {
@@ -52,7 +52,7 @@ func los(grid []Asteroid, a1, a2 Asteroid) bool {
 	return true
 }
 
-func getAngle(a1, a2 Asteroid) float64 {
+func getAngle(a1, a2 asteroid) float64 {
 	rads := math.Atan2(float64(a2.y-a1.y), float64(a2.x-a1.x))
 	rads = math.Mod(rads+2*math.Pi, 2*math.Pi)
 	return math.Mod(rads+math.Pi/2, 2*math.Pi)
@@ -92,7 +92,7 @@ func part2() {
 		}
 	}
 
-	num, dead := 0, Asteroid{}
+	num, dead := 0, asteroid{}
 	for {
 		visible, angles := make(map[float64]int), make([]float64, 0)
 		for i, a := range grid {

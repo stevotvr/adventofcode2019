@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-type Computer struct {
+type computer struct {
 	program  []int
 	position int
 	offset   int
@@ -16,7 +16,7 @@ type Computer struct {
 	waiting  chan bool
 }
 
-func (c *Computer) parseInst() (int, []int) {
+func (c *computer) parseInst() (int, []int) {
 	inst := c.read(c.position)
 	opcode := inst % 100
 	modes := make([]int, 4)
@@ -29,7 +29,7 @@ func (c *Computer) parseInst() (int, []int) {
 	return opcode, modes
 }
 
-func (c *Computer) parseParams(modes []int, num int) []int {
+func (c *computer) parseParams(modes []int, num int) []int {
 	params := make([]int, num)
 	for i := 0; i < num; i++ {
 		if i >= len(modes) || modes[i] == 0 {
@@ -44,7 +44,7 @@ func (c *Computer) parseParams(modes []int, num int) []int {
 	return params
 }
 
-func (c *Computer) read(pos int) int {
+func (c *computer) read(pos int) int {
 	if pos >= len(c.program) {
 		return 0
 	}
@@ -52,7 +52,7 @@ func (c *Computer) read(pos int) int {
 	return c.program[pos]
 }
 
-func (c *Computer) write(pos, val, mode int) {
+func (c *computer) write(pos, val, mode int) {
 	if mode == 2 {
 		pos += c.offset
 	}
@@ -66,7 +66,7 @@ func (c *Computer) write(pos, val, mode int) {
 	c.program[pos] = val
 }
 
-func (c *Computer) run() {
+func (c *computer) run() {
 	for c.read(c.position) != 99 {
 		inst, modes := c.parseInst()
 		switch inst {
@@ -127,7 +127,7 @@ func (c *Computer) run() {
 	close(c.waiting)
 }
 
-func createComputer() Computer {
+func createComputer() computer {
 	input, _ := ioutil.ReadFile("input.txt")
 	ints := make([]int, 0)
 	for _, v := range strings.Split(string(input), ",") {
@@ -135,7 +135,7 @@ func createComputer() Computer {
 		ints = append(ints, i)
 	}
 
-	c := Computer{program: ints, channel: make(chan int), waiting: make(chan bool)}
+	c := computer{program: ints, channel: make(chan int), waiting: make(chan bool)}
 	go c.run()
 
 	return c
