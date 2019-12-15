@@ -39,8 +39,8 @@ func getReactions() map[string]reaction {
 	return reactions
 }
 
-func orePerFuel(reactions map[string]reaction, excess map[string]int, quantity int) int {
-	chems, raw := make(map[string]chemical), make(map[string]chemical)
+func orePerFuel(reactions map[string]reaction, quantity int) int {
+	chems, excess, raw := make(map[string]chemical), make(map[string]int), make(map[string]chemical)
 	chems["FUEL"] = chemical{name: "FUEL", quantity: quantity}
 	for len(chems) > 0 {
 		newchems := make(map[string]chemical)
@@ -110,15 +110,15 @@ func orePerFuel(reactions map[string]reaction, excess map[string]int, quantity i
 
 func part1() {
 	reactions := getReactions()
-	fmt.Println(orePerFuel(reactions, make(map[string]int), 1))
+	fmt.Println(orePerFuel(reactions, 1))
 }
 
 func part2() {
 	reactions := getReactions()
 
-	fuel, excess, incr := 1, make(map[string]int), 1000000
+	fuel, incr := 1, 1000000
 	for {
-		needs := orePerFuel(reactions, excess, fuel)
+		needs := orePerFuel(reactions, fuel)
 		if needs > 1000000000000 {
 			if incr == 1 {
 				fuel--
