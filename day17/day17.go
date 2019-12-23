@@ -175,6 +175,63 @@ func getMap(chars []int) (map[vector2d]bool, vector2d, int) {
 	return grid, pos, dir
 }
 
+func breakInstructions(in string) []string {
+	for l1 := 2; ; l1++ {
+		if in[l1-1] != ',' {
+			continue
+		}
+
+		off1 := l1
+		p1 := in[:l1]
+
+		for p1 == in[off1:off1+l1] {
+			off1 += l1
+		}
+
+		for l2 := 2; l2 < 20; l2++ {
+			if in[off1+l2-1] != ',' {
+				continue
+			}
+
+			off2 := off1 + l2
+			p2 := in[off1 : off1+l2]
+
+			for {
+				if p1 == in[off2:off2+l1] {
+					off2 += l1
+					continue
+				}
+
+				if p2 == in[off2:off2+l2] {
+					off2 += l2
+					continue
+				}
+
+				break
+			}
+
+			for l3 := 2; off2+l3 < len(in); l3++ {
+				p3 := in[off2 : off2+l3]
+				if p3[len(p3)-1] == ',' {
+					p3 = p3[:len(p3)-1]
+				}
+
+				tmp := strings.ReplaceAll(in, p1[:len(p1)-1], "")
+				tmp = strings.ReplaceAll(tmp, p2[:len(p2)-1], "")
+				tmp = strings.ReplaceAll(tmp, p3, "")
+				tmp = strings.ReplaceAll(tmp, ",", "")
+
+				if len(tmp) == 0 {
+					keys := strings.ReplaceAll(in, p1[:len(p1)-1], "A")
+					keys = strings.ReplaceAll(keys, p2[:len(p2)-1], "B")
+					keys = strings.ReplaceAll(keys, p3, "C")
+					return []string{keys, p1[:len(p1)-1], p2[:len(p2)-1], p3}
+				}
+			}
+		}
+	}
+}
+
 func part1() {
 	c := createComputer()
 	chars := make([]int, 0)
@@ -253,14 +310,7 @@ func part2() {
 		break
 	}
 
-	// TODO: Generate in code
-	fmt.Println(strings.Join(path[1:], ","))
-	lines := []string{
-		"A,B,A,C,A,B,C,C,A,B",
-		"R,8,L,10,R,8",
-		"R,12,R,8,L,8,L,12",
-		"L,12,L,10,L,8",
-	}
+	lines := breakInstructions(strings.Join(path[1:], ","))
 
 	for _, line := range lines {
 		for <-c.channel != 10 {
