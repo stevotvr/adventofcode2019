@@ -8,6 +8,8 @@ import (
 	"strings"
 )
 
+var incache []int
+
 type vector2d struct {
 	x int
 	y int
@@ -130,11 +132,21 @@ func (c *computer) run() {
 }
 
 func createComputer() computer {
-	input, _ := ioutil.ReadFile("input.txt")
-	ints := make([]int, 0)
-	for _, v := range strings.Split(string(input), ",") {
-		i, _ := strconv.Atoi(v)
-		ints = append(ints, i)
+	var ints []int
+
+	if incache == nil {
+		input, _ := ioutil.ReadFile("input.txt")
+		ints = make([]int, 0)
+		for _, v := range strings.Split(string(input), ",") {
+			i, _ := strconv.Atoi(v)
+			ints = append(ints, i)
+		}
+
+		incache = make([]int, len(ints))
+		copy(incache, ints)
+	} else {
+		ints = make([]int, len(incache))
+		copy(ints, incache)
 	}
 
 	c := computer{program: ints, channel: make(chan int)}
