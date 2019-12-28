@@ -5,9 +5,22 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 )
+
+type state struct {
+	room  string
+	items string
+}
+
+type holder struct {
+	state    state
+	computer *computer
+	log      []string
+}
 
 type computer struct {
 	program  []int
@@ -128,7 +141,7 @@ func (c *computer) run() {
 	close(c.waiting)
 }
 
-func createComputer() computer {
+func createComputer() *computer {
 	input, _ := ioutil.ReadFile("input.txt")
 	ints := make([]int, 0)
 	for _, v := range strings.Split(string(input), ",") {
@@ -139,7 +152,17 @@ func createComputer() computer {
 	c := computer{program: ints, channel: make(chan int), waiting: make(chan bool)}
 	go c.run()
 
-	return c
+	return &c
+}
+
+func (c *computer) clone() *computer {
+	ints := make([]int, len(c.program))
+	copy(ints, c.program)
+
+	c2 := computer{program: ints, position: c.position, offset: c.offset, channel: make(chan int), waiting: make(chan bool)}
+	go c2.run()
+
+	return &c2
 }
 
 func part1() {
@@ -166,11 +189,140 @@ func part1() {
 	}
 }
 
+func part2() {
+	reRoom, _ := regexp.Compile("== ([a-zA-Z ]+) ==")
+	reDoors, _ := regexp.Compile("Doors here lead:\n((- [a-z]+\n)+)")
+	reItems, _ := regexp.Compile("Items here:\n- ([a-z ]+)\n")
+	reCode, _ := regexp.Compile(" ([0-9]+) ")
+
+	queue, visited := make([]holder, 1), make(map[state]bool)
+	queue[0] = holder{
+		state:    state{},
+		computer: createComputer(),
+		log:      make([]string, 0),
+	}
+
+	var h holder
+	for {
+		h, queue = queue[0], queue[1:]
+		outputBuilder := strings.Builder{}
+
+	readloop:
+		for {
+			select {
+			case c := <-h.computer.channel:
+				outputBuilder.WriteRune(rune(c))
+			case <-h.computer.waiting:
+				break readloop
+			}
+		}
+
+		output := []byte(outputBuilder.String())
+
+		if h.state.room == "Security Checkpoint" && strings.Contains(string(output), "You may proceed.") {
+			fmt.Println("Commands:")
+			for _, c := range h.log {
+				fmt.Println(c)
+			}
+
+			fmt.Println()
+			fmt.Print("Password: ")
+
+			m := reCode.FindSubmatch(output)
+			fmt.Println(string(m[1]))
+
+			return
+		}
+
+		visited[h.state] = true
+
+		matchRoom := reRoom.FindSubmatch(output)
+		matchDoors := reDoors.FindSubmatch(output)
+		matchItems := reItems.FindSubmatch(output)
+
+		for _, door := range strings.Split(string(matchDoors[1][2:]), "- ") {
+			door = door[:len(door)-1]
+			nextState := state{room: string(matchRoom[1]), items: h.state.items}
+			if !visited[nextState] {
+				nextComputer := *h.computer.clone()
+				<-nextComputer.waiting
+
+				for _, c := range door {
+					nextComputer.channel <- int(c)
+					<-nextComputer.waiting
+				}
+
+				nextComputer.channel <- '\n'
+
+				log := h.log
+				log = append(log, door)
+				queue = append(queue, holder{state: nextState, computer: &nextComputer, log: log})
+			}
+
+			if len(matchItems) > 1 {
+				item := string(matchItems[1])
+				if item == "infinite loop" || item == "giant electromagnet" {
+					continue
+				}
+
+				nextItems := strings.Split(h.state.items, ",")
+				if nextItems[0] == "" {
+					nextItems = nextItems[1:]
+				}
+
+				nextItems = append(nextItems, string(matchItems[1]))
+				sort.Strings(nextItems)
+
+				nextState = state{room: string(matchRoom[1]), items: strings.Join(nextItems, ",")}
+				if !visited[nextState] {
+					nextComputer := *h.computer.clone()
+					<-nextComputer.waiting
+
+					take := "take " + string(matchItems[1])
+					for _, c := range take {
+						nextComputer.channel <- int(c)
+						<-nextComputer.waiting
+					}
+
+					nextComputer.channel <- '\n'
+
+					var ok bool
+				readloop2:
+					for {
+						select {
+						case <-nextComputer.channel:
+						case _, ok = <-nextComputer.waiting:
+							break readloop2
+						}
+					}
+
+					if !ok {
+						continue
+					}
+
+					for _, c := range door {
+						nextComputer.channel <- int(c)
+						<-nextComputer.waiting
+					}
+
+					nextComputer.channel <- '\n'
+
+					log := h.log
+					log = append(log, take, door)
+					queue = append(queue, holder{state: nextState, computer: &nextComputer, log: log})
+				}
+			}
+		}
+	}
+}
+
 func main() {
 	part := 0
 	fmt.Sscan(os.Args[1], &part)
 	switch part {
 	case 1:
 		part1()
+	case 2:
+		part2()
 	}
 }
