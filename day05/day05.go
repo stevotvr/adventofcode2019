@@ -129,11 +129,19 @@ func part2() {
 
 func main() {
 	part := 0
-	fmt.Sscan(os.Args[1], &part)
+	if len(os.Args) == 2 {
+		fmt.Sscan(os.Args[1], &part)
+	} else {
+		fmt.Print("Enter 1 or 2 to select part: ")
+		fmt.Scanf("%d\n", &part)
+	}
+
 	switch part {
 	case 1:
 		part1()
 	case 2:
 		part2()
+	default:
+		fmt.Println("Error: Invalid part.")
 	}
 }

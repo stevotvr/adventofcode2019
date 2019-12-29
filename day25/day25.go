@@ -165,7 +165,7 @@ func (c *computer) clone() *computer {
 	return &c2
 }
 
-func part1() {
+func play() {
 	c := createComputer()
 
 	inreader := bufio.NewReader(os.Stdin)
@@ -189,7 +189,7 @@ func part1() {
 	}
 }
 
-func part2() {
+func solve() {
 	reRoom, _ := regexp.Compile("== ([a-zA-Z ]+) ==")
 	reDoors, _ := regexp.Compile("Doors here lead:\n((- [a-z]+\n)+)")
 	reItems, _ := regexp.Compile("Items here:\n- ([a-z ]+)\n")
@@ -317,12 +317,20 @@ func part2() {
 }
 
 func main() {
-	part := 0
-	fmt.Sscan(os.Args[1], &part)
-	switch part {
-	case 1:
-		part1()
-	case 2:
-		part2()
+	var mode string
+	if len(os.Args) == 2 {
+		fmt.Sscan(os.Args[1], &mode)
+	} else {
+		fmt.Print("Enter mode (play or solve): ")
+		fmt.Scanf("%s\n", &mode)
+	}
+
+	switch mode {
+	case "play":
+		play()
+	case "solve":
+		solve()
+	default:
+		fmt.Println("Error: Invalid mode.")
 	}
 }
