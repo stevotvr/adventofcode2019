@@ -169,6 +169,7 @@ func getMap(chars []int) (map[vector2d]bool, vector2d, int) {
 				}
 			}
 		}
+
 		x++
 	}
 

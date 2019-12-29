@@ -66,6 +66,7 @@ func (r *robot) Run(c computer) {
 		} else {
 			r.TurnRight()
 		}
+
 		r.Move()
 	}
 }
@@ -240,6 +241,7 @@ func part2() {
 				fmt.Print(" ")
 			}
 		}
+
 		fmt.Println()
 	}
 }

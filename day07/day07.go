@@ -123,6 +123,7 @@ func permutations(arr []int) [][]int {
 			}
 		}
 	}
+
 	helper(arr, len(arr))
 	return res
 }

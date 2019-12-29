@@ -32,6 +32,7 @@ func part1() {
 			if !ok {
 				break
 			}
+
 			v = p
 		}
 	}
@@ -49,6 +50,7 @@ func part2() {
 		if !ok {
 			break
 		}
+
 		path1 = append(path1, o)
 	}
 
@@ -58,6 +60,7 @@ func part2() {
 		if !ok {
 			break
 		}
+
 		path2 = append(path2, o)
 	}
 
@@ -68,6 +71,7 @@ func part2() {
 		} else {
 			break
 		}
+
 		i--
 		j--
 	}
